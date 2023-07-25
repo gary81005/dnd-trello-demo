@@ -29,7 +29,7 @@ interface Item {
 }
 
 const getItems = (count: number, id: string) =>
-  Array.from({ length: count }, (v, k) => k).map((k) => ({
+  Array.from({ length: count }, (_v, k) => k).map((k) => ({
     id: `item-${k}-${id}`,
     content: `content ${k}-${id}`,
   }));
