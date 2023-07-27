@@ -18,7 +18,7 @@ import {
 } from '@ant-design/icons';
 import './App.css';
 import Title from 'antd/es/typography/Title';
-import { Button, Tooltip } from 'antd';
+import { Button, Tooltip, message } from 'antd';
 import TaskCard from './componenets/TaskCard';
 import AddDialog from './componenets/AddDialog';
 
@@ -45,6 +45,8 @@ const getListStyle = (isDraggingOver: boolean) => ({
   background: isDraggingOver ? 'lightblue' : 'lightgrey',
   padding: grid,
   width: 250,
+  overflow: 'auto',
+  height: '85%',
 });
 
 const iconList: {
@@ -58,7 +60,7 @@ const iconList: {
 };
 
 function App() {
-  const [backLogItems, setBackLogItems] = useState<Item[]>(getItems(10, 'backLog'));
+  const [backLogItems, setBackLogItems] = useState<Item[]>(getItems(1, 'backLog'));
   const [readyItems, setReadyItems] = useState<Item[]>([]);
   const [progressItems, setProgressItems] = useState<Item[]>([]);
   const [verifyItems, setVerifyItems] = useState<Item[]>([]);
@@ -121,6 +123,26 @@ function App() {
     }
   };
 
+  const handleDelete = (cardId: string, id: string) => {
+    const newItems = getList(id).filter((item) => item.id !== cardId);
+    handleSetItems(id, newItems);
+  };
+
+  const handleConfirm = ({ title, content }: { title: string; content: string }) => {
+    if (backLogItems.some((opt) => opt.id === title)) {
+      message.warning('Duplicated!!!!');
+      return;
+    }
+    setBackLogItems([
+      ...backLogItems,
+      {
+        id: title,
+        content: content,
+      },
+    ]);
+    setOpen(false);
+  };
+
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     console.log(source, destination);
@@ -139,21 +161,21 @@ function App() {
 
   const renderList = (title: string, id: string, items: Item[]) => {
     return (
-      <div>
+      <div style={{ height: '850px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
           {iconList[id]}
           <Title>{title}</Title>
+          {id === 'backLog' && (
+            <Tooltip title="Add Card">
+              <Button
+                type="default"
+                shape="circle"
+                icon={<PlusSquareOutlined />}
+                onClick={() => setOpen(true)}
+              />
+            </Tooltip>
+          )}
         </div>
-        {id === 'backLog' && (
-          <Tooltip title="Add Card">
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<PlusSquareOutlined />}
-              onClick={() => setOpen(true)}
-            />
-          </Tooltip>
-        )}
         <Droppable droppableId={id}>
           {(provided, snapshot) => (
             <div
@@ -172,6 +194,7 @@ function App() {
                       {...provided2.dragHandleProps}
                       isDragging={snapshot.isDragging}
                       style={provided2.draggableProps.style}
+                      onDelete={(cardId) => handleDelete(cardId, id)}
                     />
                   )}
                 </Draggable>
@@ -193,7 +216,7 @@ function App() {
         {renderList('Verify', 'verify', verifyItems)}
         {renderList('Finish', 'finish', finishItems)}
       </div>
-      <AddDialog open={open} onConfirm={() => setOpen(false)} onCancel={() => setOpen(false)} />
+      <AddDialog open={open} onConfirm={handleConfirm} onCancel={() => setOpen(false)} />
     </DragDropContext>
   );
 }

@@ -6,6 +6,11 @@ interface Info {
   content: string;
 }
 
+const defaultValue: Info = {
+  title: '',
+  content: '',
+};
+
 const AddDialog = ({
   open,
   onConfirm,
@@ -15,16 +20,15 @@ const AddDialog = ({
   onConfirm: (res: Info) => void;
   onCancel: () => void;
 }) => {
-  const [info, setInfo] = useImmer<Info>({
-    title: '',
-    content: '',
-  });
+  const [info, setInfo] = useImmer<Info>(defaultValue);
   const handleConfirm = () => {
     onConfirm(info);
+    setInfo(defaultValue);
   };
 
   const handleCancel = () => {
     onCancel();
+    setInfo(defaultValue);
   };
 
   return (

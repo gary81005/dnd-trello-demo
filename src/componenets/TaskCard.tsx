@@ -1,4 +1,5 @@
-import { Card, Space } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Button, Card, Space, Tooltip } from 'antd';
 import { CSSProperties } from 'react';
 import { DraggableProvided, DraggingStyle, NotDraggingStyle } from 'react-beautiful-dnd';
 
@@ -28,12 +29,14 @@ const TaskCard = ({
   content,
   isDragging,
   style,
+  onDelete,
   ...rest
 }: {
   provided: DraggableProvided;
   title: string;
   content: string;
   isDragging: boolean;
+  onDelete: (id: string) => void;
   style: DraggingStyle | NotDraggingStyle | undefined;
 }) => (
   <Space
@@ -43,7 +46,23 @@ const TaskCard = ({
     style={getItemStyle(isDragging, style)}
     {...rest}
   >
-    <Card title={title} style={{ width: 200 }}>
+    <Card
+      title={
+        <div style={{ display: 'flex' }}>
+          <span style={{ flex: '0.9' }}>{title}</span>
+          <Tooltip title="Delete Card">
+            <Button
+              style={{ flex: '0.1', marginLeft: 'auto' }}
+              type="default"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              onClick={() => onDelete(title)}
+            />
+          </Tooltip>
+        </div>
+      }
+      style={{ width: 200 }}
+    >
       <p>{content}</p>
     </Card>
   </Space>
